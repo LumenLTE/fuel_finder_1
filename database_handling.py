@@ -12,12 +12,12 @@ class FuelDatabase():
         self.db.open()
         
     def create_tables(self):
-        sql_list = ["""CREATE TABLE fuelStation(stationID integer, stationGPS text, stationPostcode text, owner text, primary key(stationID))""",
-                    """CREATE TABLE user(userID integer, userName text, password text, userAddress1 text, userAddress2 text, userAddress3 text, userPostcode text, primary key(userID))""",
+        sql_list = ["""CREATE TABLE user(userID integer, userName text, password text, userAddress1 text, userAddress2 text, userAddress3 text, userPostcode text, primary key(userID))""",
                     """CREATE TABLE owner(ownerID integer, ownerName text, primary key(ownerID))""",
                     """CREATE TABLE fuelType(fuelType text, primary key(fuelType))""",
-                    """CREATE TABLE priceTable(priceReading real, primary key(priceReading))"""
-                    ]
+                    """CREATE TABLE fuelStation(stationID integer, stationGPS text, stationPostcode text, ownerName text, FOREIGN KEY(ownerName) REFERENCES owner(ownerName), primary key(stationID))""",
+                    """CREATE TABLE priceTable(priceReading real, userID integer, fuelType text, stationID integer, FOREIGN KEY(userID) REFERENCES user(userID), FOREIGN KEY(fuelType) REFERENCES fuelType(fuelType), FOREIGN KEY(stationID) REFERENCES fuelStation(stationID), primary key(priceReading))"""
+                    ]     
         with sqlite3.connect("fuel_finder.db") as db:
             cursor = db.cursor()
             for each in sql_list:
@@ -25,7 +25,7 @@ class FuelDatabase():
             db.commit()
 
     def test_query(self):
-        sql = """INSERT INTO fuelStation(stationGPS, stationPostcode, owner) values("24,24", "CB4 2US", "tesco")"""
+        sql = """INSERT INTO fuelStation(stationGPS, stationPostcode, ownerName) values("24,24", "CB4 2US", "tesco")"""
         with sqlite3.connect("fuel_finder.db") as db:
             cursor = db.cursor()
             cursor.execute(sql)
@@ -40,3 +40,4 @@ class FuelDatabase():
 if __name__ == "__main__":
     database = FuelDatabase()
     database.test_query()
+    
